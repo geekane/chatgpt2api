@@ -6,10 +6,9 @@ components:
   - name: chatgpt2api-backend
     type: service
     language: python
-    buildpack: python
-    buildCommand: pip install -r requirements.txt
-    runCommand: python main.py
-    port: 8001
+    buildpack: dockerfile
+    dockerfilePath: ./Dockerfile
+    port: 8080
     env:
       - name: CHATGPT2API_AUTH_KEY
         value: ${CHATGPT2API_AUTH_KEY}
@@ -19,7 +18,7 @@ components:
         value: "1"
     healthCheck:
       path: /v1/models
-      port: 8001
+      port: 8080
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -30,27 +29,30 @@ components:
         memory: 1Gi
         cpu: 1000m
 
-  - name: chatgpt2api-frontend
-    type: web-application
-    language: nodejs
-    buildpack: nodejs
-    buildCommand: cd web && npm install && npm run build
-    runCommand: cd web && npm start
-    port: 3000
-    env:
-      - name: NODE_ENV
-        value: production
-      - name: NEXT_PUBLIC_API_URL
-        value: ${BACKEND_URL}
-    healthCheck:
-      path: /
-      port: 3000
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        memory: 512Mi
-        cpu: 500m
-      limits:
-        memory: 1Gi
-        cpu: 1000m
+  # 前端已集成在后端 Dockerfile 中，作为静态文件服务
+  # 如需单独部署前端，可以取消下面的注释并创建独立组件
+  
+  # - name: chatgpt2api-frontend
+  #   type: web-application
+  #   language: nodejs
+  #   buildpack: nodejs
+  #   buildCommand: cd web && npm install && npm run build
+  #   runCommand: cd web && npm start
+  #   port: 3000
+  #   env:
+  #     - name: NODE_ENV
+  #       value: production
+  #     - name: NEXT_PUBLIC_API_URL
+  #       value: ${BACKEND_URL}
+  #   healthCheck:
+  #     path: /
+  #     port: 3000
+  #     initialDelaySeconds: 30
+  #     periodSeconds: 10
+  #   resources:
+  #     requests:
+  #       memory: 512Mi
+  #       cpu: 500m
+  #     limits:
+  #       memory: 1Gi
+  #       cpu: 1000m
