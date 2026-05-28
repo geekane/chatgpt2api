@@ -1,0 +1,56 @@
+# Choreo 组件配置文件
+schemaVersion: 1.0
+
+# 后端服务组件
+components:
+  - name: chatgpt2api-backend
+    type: service
+    language: python
+    buildpack: python
+    buildCommand: pip install -r requirements.txt
+    runCommand: python main.py
+    port: 8001
+    env:
+      - name: CHATGPT2API_AUTH_KEY
+        value: ${CHATGPT2API_AUTH_KEY}
+      - name: STORAGE_BACKEND
+        value: json
+      - name: PYTHONUNBUFFERED
+        value: "1"
+    healthCheck:
+      path: /v1/models
+      port: 8001
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 500m
+      limits:
+        memory: 1Gi
+        cpu: 1000m
+
+  - name: chatgpt2api-frontend
+    type: web-application
+    language: nodejs
+    buildpack: nodejs
+    buildCommand: cd web && npm install && npm run build
+    runCommand: cd web && npm start
+    port: 3000
+    env:
+      - name: NODE_ENV
+        value: production
+      - name: NEXT_PUBLIC_API_URL
+        value: ${BACKEND_URL}
+    healthCheck:
+      path: /
+      port: 3000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 500m
+      limits:
+        memory: 1Gi
+        cpu: 1000m
