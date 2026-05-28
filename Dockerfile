@@ -21,7 +21,9 @@ ARG TARGETARCH
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    UV_LINK_MODE=copy
+    UV_LINK_MODE=copy \
+    UV_CACHE_DIR=/tmp/.uv-cache \
+    UV_NO_CACHE=1
 
 WORKDIR /app
 
@@ -51,7 +53,9 @@ COPY --from=web-build /app/web/out ./web_dist
 # 适配 Choreo 安全要求：创建非 root 用户并修改权限
 # ============================================================
 RUN useradd -u 10001 -m choreouser && \
-    chown -R 10001:10001 /app
+    chown -R 10001:10001 /app && \
+    mkdir -p /tmp/.uv-cache && \
+    chown -R 10001:10001 /tmp/.uv-cache
 
 USER 10001
 # ============================================================
