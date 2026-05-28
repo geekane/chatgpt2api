@@ -17,10 +17,12 @@ components:
       - name: PYTHONUNBUFFERED
         value: "1"
     healthCheck:
-      path: /v1/models
+      path: /health?format=json
       port: 8080
-      initialDelaySeconds: 30
-      periodSeconds: 10
+      initialDelaySeconds: 60
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 3
     resources:
       requests:
         memory: 512Mi
